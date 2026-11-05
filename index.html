@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Core Banking | Enterprise Financial Ledger & ATM System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glow Effects -->
+  <div class="glow-bg glow-1"></div>
+  <div class="glow-bg glow-2"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <span class="logo-icon">🏦</span>
+        <div>
+          <span class="brand-name">HDFC / Apex Banking</span>
+          <span class="brand-tagline">Core System & Ledger Simulator</span>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="pulse-dot"></span> ACID Ledger · Java Core
+      </div>
+    </div>
+
+    <!-- Quick Access Demo Roles -->
+    <div class="demo-pills-container">
+      <span class="quick-label">Quick Demo:</span>
+      <button class="pill-btn" onclick="quickLogin('customer')">👤 Customer (1001)</button>
+      <button class="pill-btn" onclick="quickLogin('frontoff')">🏢 Front Office (2001)</button>
+      <button class="pill-btn" onclick="quickLogin('manager')">👔 Manager (9001)</button>
+      <button class="pill-btn danger-pill" onclick="resetDatabase()">🔄 Reset DB</button>
+    </div>
+
+    <div class="header-right">
+      <div id="currentUserBadge" class="user-pill hidden">
+        <span id="userRoleTag" class="role-tag">CUSTOMER</span>
+        <span id="userNameDisplay" class="user-name">Pradeep D.</span>
+        <button class="logout-btn" onclick="logout()" title="Logout">✕</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="main-container">
+
+    <!-- VIEW 1: AUTHENTICATION / LOGIN -->
+    <section id="viewLogin" class="view-panel active">
+      <div class="login-split">
+        <div class="login-hero">
+          <div class="eyebrow">ENTERPRISE CORE BANKING PLATFORM</div>
+          <h1>Multi-Role Transaction Engine & Financial Ledger</h1>
+          <p>
+            An interactive web deployment of the Java Banking System. Simulates real-time double-entry transaction ledgers, ATM deposits & withdrawals, external account transfers, branch manager deposits aggregation, and front-office client management.
+          </p>
+
+          <div class="architecture-highlights">
+            <div class="arch-card">
+              <span class="arch-icon">🔐</span>
+              <div>
+                <h4>3-Tier Role Authentication</h4>
+                <p>Granular access for Customers, Front-Office Operators, and Branch Managers.</p>
+              </div>
+            </div>
+            <div class="arch-card">
+              <span class="arch-icon">⚡</span>
+              <div>
+                <h4>Transactional Integrity</h4>
+                <p>Atomic deposit, withdrawal, and inter-bank transfers with running balance tracking.</p>
+              </div>
+            </div>
+            <div class="arch-card">
+              <span class="arch-icon">📊</span>
+              <div>
+                <h4>Audit & Mini-Statements</h4>
+                <p>Real-time mini statements, manager aggregate deposit sums, and exportable ledgers.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-card-container">
+          <div class="glass-card login-card">
+            <div class="card-header">
+              <span class="card-chip"></span>
+              <h3>System Portal Login</h3>
+              <p>Enter your account credentials or use quick demo accounts above</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+              <div class="input-group">
+                <label for="accNumInput">Account / Staff Number</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💳</span>
+                  <input type="text" id="accNumInput" placeholder="e.g. 1001, 2001, 9001" required autocomplete="username">
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label for="passInput">PIN / Password</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🔒</span>
+                  <input type="password" id="passInput" placeholder="••••" required autocomplete="current-password">
+                </div>
+              </div>
+
+              <div id="loginError" class="error-banner hidden"></div>
+
+              <div class="login-actions">
+                <button type="submit" class="btn btn-primary btn-block">Sign In to Account →</button>
+                <button type="button" class="btn btn-secondary btn-block" onclick="showSignupView()">Open New Account (Sign Up)</button>
+              </div>
+            </form>
+
+            <div class="credentials-hint">
+              <strong>Demo Test Credentials:</strong>
+              <div>• <b>Customer:</b> Ac: <code>1001</code> | PIN: <code>1234</code></div>
+              <div>• <b>Front Office:</b> Staff ID: <code>2001</code> | Pass: <code>staff123</code></div>
+              <div>• <b>Manager:</b> Mgr ID: <code>9001</code> | Pass: <code>admin123</code></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: CUSTOMER ATM / TRANSACTIONS -->
+    <section id="viewCustomer" class="view-panel">
+      <!-- Customer Header -->
+      <div class="panel-header">
+        <div>
+          <span class="badge">CUSTOMER PORTAL · ATM TERMINAL</span>
+          <h2>Welcome back, <span id="customerNameHeading" class="accent-text">Pradeep</span></h2>
+          <p>Manage your account balance, perform transfers, and inspect real-time transaction ledgers.</p>
+        </div>
+        <div class="quick-balance-card">
+          <span class="sub-label">AVAILABLE BALANCE</span>
+          <div class="balance-amount" id="customerBalanceDisplay">€0.00</div>
+          <span class="acc-meta" id="customerAccMeta">Account: #1001 · Savings</span>
+        </div>
+      </div>
+
+      <!-- ATM Action Grid -->
+      <div class="atm-grid">
+        <button class="atm-card" onclick="openModal('deposit')">
+          <div class="atm-card-icon">📥</div>
+          <h4>Deposit Cash</h4>
+          <p>Credit funds to your account with instant ledger confirmation</p>
+        </button>
+
+        <button class="atm-card" onclick="openModal('withdraw')">
+          <div class="atm-card-icon">📤</div>
+          <h4>Withdraw Cash</h4>
+          <p>Dispense funds with balance verification</p>
+        </button>
+
+        <button class="atm-card highlight-card" onclick="openModal('transfer')">
+          <div class="atm-card-icon">🔁</div>
+          <h4>External Transfer</h4>
+          <p>Inter-account money transfer with instant settlement</p>
+        </button>
+
+        <button class="atm-card" onclick="openModal('pin')">
+          <div class="atm-card-icon">🔑</div>
+          <h4>Change PIN</h4>
+          <p>Update your 4-digit security PIN</p>
+        </button>
+      </div>
+
+      <!-- Recent Mini-Statement Table -->
+      <div class="glass-card ledger-section">
+        <div class="ledger-header">
+          <div>
+            <h3>Mini Statement & Transaction Ledger</h3>
+            <p>Chronological record of recent credits, debits, and transfers</p>
+          </div>
+          <div class="ledger-actions">
+            <button class="btn btn-outline" onclick="downloadStatement()">📥 Download CSV</button>
+            <button class="btn btn-outline" onclick="renderCustomerView()">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Type</th>
+                <th>Description / Target</th>
+                <th>Amount</th>
+                <th>Running Balance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="customerLedgerBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: BRANCH MANAGER DASHBOARD -->
+    <section id="viewManager" class="view-panel">
+      <div class="panel-header">
+        <div>
+          <span class="badge badge-manager">EXECUTIVE · BRANCH MANAGER</span>
+          <h2>Branch Financial Overview</h2>
+          <p>Real-time audit aggregation, cumulative branch liquidity, and customer activity metrics.</p>
+        </div>
+        <button class="btn btn-outline" onclick="renderManagerView()">🔄 Refresh Ledger</button>
+      </div>
+
+      <!-- Manager Stat Cards -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-title">SUM OF TOTAL DEPOSITS</span>
+          <div class="stat-value" id="mgrTotalDeposits">€0.00</div>
+          <span class="stat-sub">Across all customer accounts</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-title">TOTAL BRANCH LIQUIDITY</span>
+          <div class="stat-value" id="mgrTotalLiquidity">€0.00</div>
+          <span class="stat-sub">Net active reserve balances</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-title">ACTIVE ACCOUNTS</span>
+          <div class="stat-value" id="mgrTotalAccounts">0</div>
+          <span class="stat-sub">Registered client profiles</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-title">TOTAL TRANSACTIONS</span>
+          <div class="stat-value" id="mgrTotalTransactions">0</div>
+          <span class="stat-sub">Historical ledger entries</span>
+        </div>
+      </div>
+
+      <!-- Manager Activities Table -->
+      <div class="glass-card ledger-section">
+        <div class="ledger-header">
+          <div>
+            <h3>Customer Activity & Branch Ledger Log</h3>
+            <p>Full audit trail of all operations executed across the system</p>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Account #</th>
+                <th>Client Name</th>
+                <th>Operation</th>
+                <th>Amount</th>
+                <th>Balance After</th>
+              </tr>
+            </thead>
+            <tbody id="managerLedgerBody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: FRONT OFFICE PORTAL -->
+    <section id="viewFrontOff" class="view-panel">
+      <div class="panel-header">
+        <div>
+          <span class="badge badge-frontoff">OPERATIONS · FRONT OFFICE</span>
+          <h2>Client Relationship & Accounts Directory</h2>
+          <p>Inspect client profiles, KYC information, and individual transaction histories.</p>
+        </div>
+        <button class="btn btn-primary" onclick="showSignupView()">+ Register New Client</button>
+      </div>
+
+      <!-- Clients Directory Table -->
+      <div class="glass-card ledger-section">
+        <div class="ledger-header">
+          <div>
+            <h3>Clients Directory</h3>
+            <p>All active bank account holders and verified profiles</p>
+          </div>
+          <input type="text" id="clientSearchInput" class="search-input" placeholder="🔍 Search by name or account..." oninput="filterClientsTable()">
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Account #</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>City</th>
+                <th>Gender</th>
+                <th>Account Type</th>
+                <th>Current Balance</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clientsListBody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: ACCOUNT APPLICATION / SIGNUP WIZARD -->
+    <section id="viewSignup" class="view-panel">
+      <div class="signup-container">
+        <div class="glass-card signup-card">
+          <div class="panel-header">
+            <div>
+              <span class="badge">KYC ONBOARDING</span>
+              <h2>Open a New Bank Account</h2>
+              <p>Simulates <code>Signup.java</code> and <code>SignupTwo.java</code> multi-step application.</p>
+            </div>
+            <button class="btn btn-outline" onclick="showLoginView()">✕ Cancel & Return</button>
+          </div>
+
+          <form id="signupForm" onsubmit="handleSignupSubmit(event)">
+            <div class="form-grid">
+              <div class="input-group">
+                <label>First Name</label>
+                <input type="text" id="newFname" placeholder="First Name" required>
+              </div>
+
+              <div class="input-group">
+                <label>Last Name</label>
+                <input type="text" id="newLname" placeholder="Last Name" required>
+              </div>
+
+              <div class="input-group">
+                <label>Date of Birth</label>
+                <input type="date" id="newDob" required value="1998-05-14">
+              </div>
+
+              <div class="input-group">
+                <label>Gender</label>
+                <select id="newGender" required>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="newEmail" placeholder="name@domain.com" required>
+              </div>
+
+              <div class="input-group">
+                <label>City</label>
+                <input type="text" id="newCity" placeholder="City" required value="Paris">
+              </div>
+
+              <div class="input-group">
+                <label>Account Type</label>
+                <select id="newAccType" required>
+                  <option value="Savings">Savings Account</option>
+                  <option value="Current">Current Account</option>
+                  <option value="Fixed Deposit">Fixed Deposit</option>
+                </select>
+              </div>
+
+              <div class="input-group">
+                <label>Initial Deposit (€)</label>
+                <input type="number" id="newInitialDeposit" min="50" step="10" placeholder="Minimum €50" required value="500">
+              </div>
+
+              <div class="input-group full-width">
+                <label>Set 4-Digit Security PIN</label>
+                <input type="password" id="newPin" maxlength="4" pattern="[0-9]{4}" placeholder="4-digit PIN (e.g. 5678)" required>
+              </div>
+            </div>
+
+            <div class="signup-footer">
+              <button type="submit" class="btn btn-primary btn-large">Generate Account & Issue Credentials →</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODALS FOR ATM TRANSACTIONS -->
+
+  <!-- Modal: Deposit -->
+  <div id="modalDeposit" class="modal-overlay hidden">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>📥 Deposit Cash</h3>
+        <button class="close-btn" onclick="closeModal('deposit')">✕</button>
+      </div>
+      <form onsubmit="handleDepositSubmit(event)">
+        <p class="modal-desc">Enter the euro amount to credit into your account balance.</p>
+        <div class="input-group">
+          <label>Deposit Amount (€)</label>
+          <input type="number" id="depositAmountInput" min="10" step="10" placeholder="e.g. 200" required>
+        </div>
+        <div class="quick-amounts">
+          <button type="button" class="btn-chip" onclick="setDepositAmount(50)">+€50</button>
+          <button type="button" class="btn-chip" onclick="setDepositAmount(100)">+€100</button>
+          <button type="button" class="btn-chip" onclick="setDepositAmount(250)">+€250</button>
+          <button type="button" class="btn-chip" onclick="setDepositAmount(500)">+€500</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('deposit')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Deposit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Withdraw -->
+  <div id="modalWithdraw" class="modal-overlay hidden">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>📤 Withdraw Cash</h3>
+        <button class="close-btn" onclick="closeModal('withdraw')">✕</button>
+      </div>
+      <form onsubmit="handleWithdrawSubmit(event)">
+        <p class="modal-desc">Select or enter the amount you wish to withdraw from your account.</p>
+        <div class="input-group">
+          <label>Withdrawal Amount (€)</label>
+          <input type="number" id="withdrawAmountInput" min="10" step="10" placeholder="e.g. 100" required>
+        </div>
+        <div class="quick-amounts">
+          <button type="button" class="btn-chip" onclick="setWithdrawAmount(20)">€20</button>
+          <button type="button" class="btn-chip" onclick="setWithdrawAmount(50)">€50</button>
+          <button type="button" class="btn-chip" onclick="setWithdrawAmount(100)">€100</button>
+          <button type="button" class="btn-chip" onclick="setWithdrawAmount(200)">€200</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('withdraw')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Dispense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: External Transfer -->
+  <div id="modalTransfer" class="modal-overlay hidden">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>🔁 External Funds Transfer</h3>
+        <button class="close-btn" onclick="closeModal('transfer')">✕</button>
+      </div>
+      <form onsubmit="handleTransferSubmit(event)">
+        <p class="modal-desc">Execute an atomic transfer to another registered client account number.</p>
+        <div class="input-group">
+          <label>Recipient Account Number</label>
+          <input type="text" id="transferTargetAcc" placeholder="e.g. 1002 (Alice) or 1003 (Marco)" required>
+        </div>
+        <div class="input-group">
+          <label>Transfer Amount (€)</label>
+          <input type="number" id="transferAmountInput" min="5" step="5" placeholder="e.g. 150" required>
+        </div>
+        <div class="input-group">
+          <label>Transfer Purpose / Note</label>
+          <input type="text" id="transferNoteInput" placeholder="e.g. Invoice payment or rent" value="General transfer">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('transfer')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Execute Wire Transfer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Change PIN -->
+  <div id="modalPin" class="modal-overlay hidden">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>🔑 Update Security PIN</h3>
+        <button class="close-btn" onclick="closeModal('pin')">✕</button>
+      </div>
+      <form onsubmit="handlePinSubmit(event)">
+        <div class="input-group">
+          <label>Current PIN</label>
+          <input type="password" id="oldPinInput" maxlength="4" pattern="[0-9]{4}" placeholder="••••" required>
+        </div>
+        <div class="input-group">
+          <label>New 4-Digit PIN</label>
+          <input type="password" id="newPinInput" maxlength="4" pattern="[0-9]{4}" placeholder="••••" required>
+        </div>
+        <div class="input-group">
+          <label>Confirm New PIN</label>
+          <input type="password" id="confirmPinInput" maxlength="4" pattern="[0-9]{4}" placeholder="••••" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('pin')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update PIN</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
